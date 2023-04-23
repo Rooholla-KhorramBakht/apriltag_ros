@@ -41,6 +41,8 @@
 #include "tagCustom48h12.h"
 #include "tagCircle21h7.h"
 #include "tagCircle49h12.h"
+#include "LibQPEP/QPEP_grobner.h"
+#include "LibQPEP/pnp_WQD.h"
 
 namespace apriltag_ros
 {
@@ -341,9 +343,20 @@ AprilTagDetectionArray TagDetector::detectTags (
     std::vector<cv::Point2d > standaloneTagImagePoints;
     addObjectPoints(tag_size/2, cv::Matx44d::eye(), standaloneTagObjectPoints);
     addImagePoints(detection, standaloneTagImagePoints);
-    Eigen::Isometry3d transform = getRelativeTransform(standaloneTagObjectPoints,
-                                                     standaloneTagImagePoints,
-                                                     fx, fy, cx, cy);
+
+    // Start of rooholla's modifications ...
+    std::cout << "*********************************" << std::endl;
+    std::cout << standaloneTagImagePoints << std::endl;
+    Eigen::Isometry3d transform;
+    for(int j=0; j<10; j++)
+      transform = getRelativeTransform(standaloneTagObjectPoints,
+                                                      standaloneTagImagePoints,
+                                                      fx, fy, cx, cy);
+
+    //std::cout << transform.matrix() << std::endl;
+    // End of rooholla's modifications
+
+
     geometry_msgs::PoseWithCovarianceStamped tag_pose =
         makeTagPose(transform, image->header);
 
